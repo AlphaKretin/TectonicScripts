@@ -6,3 +6,5 @@ Extracts a list of all Pokemon longside their types, tribes, and abilities. Some
 Filters the list of all Pokemon for Pokemon that do not evolve. Used primarily to fuel the below script.
 ## calc_tribe_pairs
 Calculates how many of each tribe pair exist amongst all fully evolved Pokemon. Uses its own data source derived from cross-referencing the above two scripts' output.
+## list_tribe_pairs
+Same as the above script, but lists out each Pokemon that fits the tribe pair instead.
