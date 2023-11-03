@@ -29,7 +29,7 @@ for mon in mons:
         list_pair(name, terms[2], terms[3])
         list_pair(name, terms[1], terms[3])
 
-lines = [pair[0] + "/" + pair[1] + ": " + str(list) for pair,list in pair_lists.items()]
+lines = [pair[0] + "/" + pair[1] + ": " + "\t".join(list) for pair,list in pair_lists.items()]
 
 out = "\n".join(lines)
 
