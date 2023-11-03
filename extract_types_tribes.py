@@ -60,14 +60,29 @@ for mon in mons:
 
 new_evo_tribes = {}
 
+def tribes_blank(tribes):
+    trimmed_tribes = [tribe for tribe in tribes if len(tribe) > 0]
+    return len(trimmed_tribes) == 0
+
 for evo, tribe in evo_tribes.items():
-    mon_data[evo]["tribes"] = tribe
+    if tribes_blank(mon_data[evo]["tribes"]):
+        mon_data[evo]["tribes"] = tribe
     if (mon_data[evo]["evo"]):
-        new_evo_tribes[mon_data[evo]["evo"]] = tribe
+        new_evo_tribes[mon_data[evo]["evo"]] = mon_data[evo]["tribes"]
+
+new_new_evo_tribes = {}
 
 # repeat for evolutions
 for evo, tribe in new_evo_tribes.items():
-    mon_data[evo]["tribes"] = tribe
+    if tribes_blank(mon_data[evo]["tribes"]):
+        mon_data[evo]["tribes"] = tribe
+    if (mon_data[evo]["evo"]):
+        new_new_evo_tribes[mon_data[evo]["evo"]] = mon_data[evo]["tribes"]
+
+# repeat once more for the two four-stage evolutions
+for evo, tribe in new_new_evo_tribes.items():
+    if tribes_blank(mon_data[evo]["tribes"]):
+        mon_data[evo]["tribes"] = tribe
 
 lines = [mon["name"] + "\t" + mon["type1"] + "\t" + mon["type2"] + "\t" + "\t".join(mon["tribes"]) + "\t" + "\t".join(mon["abilities"])
          for _, mon in mon_data.items()]
