@@ -36,13 +36,19 @@ mon_data = {}
 evo_tribes = {}
 
 with open("abilities.txt", "r", encoding="utf8") as infile:
-    abil_raw = infile.readlines()
+    abil_raw = infile.read()
+
+abil_data = abil_raw.split("#-------------------------------")
+abil_data = abil_data[1:]  # first entry is a header, rest fit expected format
 
 abil = {}
 
-for line in abil_raw:
-    parts = line.split(",")
-    abil[parts[1]] = parts[2]
+for abil_text in abil_data:
+    id_match = re.search(r"\[([A-Z]+)\]", abil_text, re.MULTILINE)
+    id = id_match.group(1)
+    name_match = re.search(r"^Name = (.+)", abil_text, re.MULTILINE)
+    name = name_match.group(1)
+    abil[id] = name
 
 for mon in mons:
     (id, name, type1, type2, tribe, ability, evo) = extract_mon_data(mon)
