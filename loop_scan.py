@@ -23,7 +23,6 @@ print("Total Files: " + str(len(oggFiles)))
 print("Looping Files: " + str(len(looping_files)))
 print("Loopless Files: " + str(len(loopless_files)))
 
-print(looping_files)
 out = "\n".join(loopless_files)
 
 with open("loopless_files.txt", "w", encoding="utf8") as outfile:
