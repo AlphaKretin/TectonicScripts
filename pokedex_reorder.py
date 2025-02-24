@@ -25,12 +25,33 @@ for mon in mons:
 with open("pokedexorder.txt", "r", encoding="utf8") as infile:
     order = infile.read().split("\n")
 
-outdoc = "# See the documentation on the wiki to learn how to edit this file.\n#-------------------------------\n"
+dexout = "# See the documentation on the wiki to learn how to edit this file.\n#-------------------------------\n"
+
+regout = "# See the documentation on the wiki to learn how to edit this file.\n#-------------------------------\n[0]\n"
 
 for i in range(1, len(order) + 1):
-    outdoc += f"[{i}]\n"
-    outdoc += mon_data[order[i - 1]]
-    outdoc += "#-------------------------------\n"
+    mon_id = order[i - 1]
+    mon_text = mon_data[mon_id]
+    dexout += f"[{i}]\n"
+    dexout += mon_text
+    dexout += "#-------------------------------\n"
+
+    evo_line = False
+
+    evo_match = re.search(r"^Evolutions = (.+?),", mon_text, re.MULTILINE)
+    if evo_match:
+        evo = evo_match.group(1)
+        if order[i] == evo:
+            evo_line = True
+
+    if evo_line:
+        regout += f"{mon_id},"
+    else:
+        regout += f"{mon_id}\n"
+
 
 with open("pokemon_reordered.txt", "w", encoding="utf8") as outfile:
-    outfile.write(outdoc)
+    outfile.write(dexout)
+
+with open("regionaldexes.txt", "w", encoding="utf8") as outfile:
+    outfile.write(regout)
