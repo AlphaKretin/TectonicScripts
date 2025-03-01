@@ -23,7 +23,7 @@ def extract_mon_data(mon_text):
 mon_data = [extract_mon_data(mon) for mon in mons]
 legend_mons = [mon for mon in mon_data if mon["flags"] and "Legendary" in mon["flags"]]
 
-lines = [mon["name"] for mon in legend_mons]
+lines = [mon["id"] for mon in legend_mons]
 
 out = "\n".join(lines)
 

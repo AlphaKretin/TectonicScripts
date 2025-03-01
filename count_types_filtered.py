@@ -6,6 +6,12 @@ with open("pokemon.txt", "r", encoding="utf8") as infile:
 mons = doc.split("#-------------------------------")
 mons = mons[1:]  # first entry is a header, rest fit expected format
 
+with open("evomons.txt", "r", encoding="utf8") as f:
+    evos = f.read().splitlines()
+
+with open("legendmons.txt", "r", encoding="utf8") as f:
+    legends = f.read().splitlines()
+
 
 def extract_mon_data(mon_text):
     id_match = re.search(r"^InternalName = (.+)", mon_text, re.MULTILINE)
@@ -24,15 +30,16 @@ type_counts = {}
 
 for mon in mons:
     (id, type1, type2) = extract_mon_data(mon)
-    if type1 in type_counts:
-        type_counts[type1] += 1
-    else:
-        type_counts[type1] = 1
-    if len(type2) > 0:
-        if type2 in type_counts:
-            type_counts[type2] += 1
+    if id in evos and id not in legends:
+        if type1 in type_counts:
+            type_counts[type1] += 1
         else:
-            type_counts[type2] = 1
+            type_counts[type1] = 1
+        if len(type2) > 0:
+            if type2 in type_counts:
+                type_counts[type2] += 1
+            else:
+                type_counts[type2] = 1
 
 sorted_counts = {k: v for k, v in sorted(type_counts.items(), key=lambda item: item[1])}
 
