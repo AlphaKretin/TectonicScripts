@@ -8,6 +8,8 @@ Filters the list of all Pokemon for Pokemon that do not evolve. Used primarily t
 Calculates how many of each tribe pair exist amongst all fully evolved Pokemon. Uses its own data source derived from cross-referencing the above two scripts' output.
 ## list_tribe_pairs
 Same as the above script, but lists out each Pokemon that fits the tribe pair instead.
+## count_types
+Counts how many instances of each type appear in the list of Pokemon.
 ## filter_legendary
 Filters the list of all Pokemon for Pokemon with the "Legendary" flag. Used for easy checking of what's illegal in the Battle Monument.
 ## pokedex_reoder
