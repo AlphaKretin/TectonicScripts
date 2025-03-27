@@ -17,6 +17,12 @@ pokemon = doc.split("#-------------------------------")
 pokemon = pokemon[1:]  # first entry is a header, rest fit expected format
 
 
+def unique(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
 def extract_pokemon_data(mon_text):
     id_match = re.search(r"\[([A-Zfm\d]+)\]", mon_text, re.MULTILINE)
     id = id_match.group(1)
@@ -58,6 +64,8 @@ def extract_pokemon_data(mon_text):
     if tutor_moves_match:
         tutor_moves = tutor_moves_match.group(1)
         moves += tutor_moves.split(",")
+
+    moves = unique(moves)
 
     mon_data = {
         "id": id,
