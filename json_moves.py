@@ -35,7 +35,17 @@ def extract_move_data(move_text):
     cat_match = re.search(r"^Category = (.+)", move_text, re.MULTILINE)
     category = cat_match.group(1).title()
 
-    move_data = {"id": id, "name": name, "type": type, "bp": bp, "category": category}
+    target_match = re.search(r"^Target = (.+)", move_text, re.MULTILINE)
+    target = target_match.group(1)
+
+    move_data = {
+        "id": id,
+        "name": name,
+        "type": type,
+        "bp": bp,
+        "category": category,
+        "target": target,
+    }
 
     return move_data
 
@@ -46,3 +56,7 @@ move_data = {move["id"]: move for move in move_list}
 
 with open("moves.json", "w", encoding="utf8") as outfile:
     outfile.write(json.dumps(move_data, indent=4))
+
+all_targets = list(set([move["target"] for move in move_list]))
+with open("movetargets.txt", "w", encoding="utf8") as outfile:
+    outfile.write("\n".join(all_targets))
