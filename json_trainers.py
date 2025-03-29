@@ -28,7 +28,7 @@ def extract_trainer_pokemon(mon_text):
     terms = mon_text.split("\n")[0].split(",")
     id = terms[0]
     level = int(terms[1])
-    sp_match = re.search(r"^EV = (.+)", mon_text, re.MULTILINE)
+    sp_match = re.search(r"EV = (.+)", mon_text, re.MULTILINE)
     sp_text = sp_match.group(1) if sp_match else None
     if sp_text:
         sp_terms = sp_text.split(",")
@@ -43,7 +43,9 @@ def extract_trainer_pokemon(mon_text):
     else:
         sp = {"hp": 10, "attacks": 10, "defense": 10, "speed": 10, "spdef": 10}
 
-    mon_data = {"id": id, "level": level, "sp": sp}
+    nickname_match = re.search(r"Name = (.+)", mon_text, re.MULTILINE)
+    nickname = nickname_match.group(1) if nickname_match else None
+    mon_data = {"id": id, "level": level, "sp": sp, "nickname": nickname}
 
     return mon_data
 
