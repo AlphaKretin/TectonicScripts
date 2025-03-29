@@ -1,7 +1,7 @@
 # TectonicScripts
 Most .txt files expected by the scripts are the PBS files from Pokemon Tectonic.
 ## JSON exports
-`json_moves.py` and `json_pokemon.py` extract relevant data from the PBS and export as JSON for use in the [damage calculator](https://github.com/AlphaKretin/tectonic-damage-calc).
+`json_moves.py`, `json_pokemon.py` and `json_trainers.py` extract relevant data from the PBS and export as JSON for use in the [damage calculator](https://github.com/AlphaKretin/tectonic-damage-calc).
 ## extract_types_tribes
 Extracts a list of all Pokemon alongside their types, tribes, and abilities. Some tribes for 4th or branching evolutions will be blank and need to be added manually. Used to generate the data for the [team builder/coverage calculator](https://docs.google.com/spreadsheets/d/14JS_0oAJpP7EB9LrtIShvPYshig1oSVsBKCSVAVV6tc/edit?usp=sharing).
 ## filter_legendary
