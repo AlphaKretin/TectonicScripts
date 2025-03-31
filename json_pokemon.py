@@ -49,23 +49,31 @@ def extract_pokemon_data(mon_text):
         "spdef": stat_nums[5],
     }
 
+    level_moves = None
     level_moves_match = re.search(r"^Moves = (.+)", mon_text, re.MULTILINE)
-    level_moves = level_moves_match.group(1)
-    level_move_list = level_moves.split(",")
-    moves = level_move_list[1::2]
+    if level_moves_match:
+        level_moves_text = level_moves_match.group(1)
+        level_move_list = level_moves_text.split(",")
+        level_moves = level_move_list[1::2]
 
-    # TODO: make line moves propagate along evolutions
+    line_moves = None
     line_moves_match = re.search(r"^LineMoves = (.+)", mon_text, re.MULTILINE)
     if line_moves_match:
-        line_moves = line_moves_match.group(1)
-        moves += line_moves.split(",")
+        line_moves_text = line_moves_match.group(1)
+        line_moves = line_moves_text.split(",")
 
+    tutor_moves = None
     tutor_moves_match = re.search(r"^TutorMoves = (.+)", mon_text, re.MULTILINE)
     if tutor_moves_match:
-        tutor_moves = tutor_moves_match.group(1)
-        moves += tutor_moves.split(",")
+        tutor_moves_text = tutor_moves_match.group(1)
+        tutor_moves = tutor_moves_text.split(",")
 
-    moves = unique(moves)
+    evos = None
+    evos_match = re.search(r"^Evolutions = (.+)", mon_text, re.MULTILINE)
+    if evos_match:
+        evos_text = evos_match.group(1)
+        evos_list = evos_text.split(",")
+        evos = evos_list[0::3]
 
     mon_data = {
         "id": id,
@@ -73,13 +81,43 @@ def extract_pokemon_data(mon_text):
         "type1": type1,
         "type2": type2,
         "stats": stats,
-        "moves": moves,
+        "level_moves": level_moves,
+        "line_moves": line_moves,
+        "tutor_moves": tutor_moves,
+        "evos": evos,
     }
 
     return mon_data
 
 
 mon_list = [extract_pokemon_data(mon) for mon in pokemon]
+
+# propagate moves through evos, combine move lists
+for mon in mon_list:
+    if mon["evos"] != None:
+        for evo in mon["evos"]:
+            evo_index = next(i for i, v in enumerate(mon_list) if v["id"] == evo)
+            if mon["level_moves"] != None:
+                mon_list[evo_index]["level_moves"] = (
+                    mon_list[evo_index]["level_moves"] or []
+                ) + mon["level_moves"]
+            if mon["line_moves"] != None:
+                mon_list[evo_index]["line_moves"] = (
+                    mon_list[evo_index]["line_moves"] or []
+                ) + mon["line_moves"]
+    mon["moves"] = unique(
+        (mon["level_moves"] or [])
+        + (mon["line_moves"] or [])
+        + (mon["tutor_moves"] or [])
+    )
+
+# remove unnecessary properties
+for mon in mon_list:
+    del mon["level_moves"]
+    del mon["line_moves"]
+    del mon["tutor_moves"]
+    del mon["evos"]
+
 
 mon_data = {mon["id"]: mon for mon in mon_list}
 
