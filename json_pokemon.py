@@ -54,7 +54,9 @@ def extract_pokemon_data(mon_text):
     if level_moves_match:
         level_moves_text = level_moves_match.group(1)
         level_move_list = level_moves_text.split(",")
-        level_moves = level_move_list[1::2]
+        level_moves = []
+        for i in range(0, len(level_move_list), 2):
+            level_moves.append((int(level_move_list[i]), level_move_list[i + 1]))
 
     line_moves = None
     line_moves_match = re.search(r"^LineMoves = (.+)", mon_text, re.MULTILINE)
@@ -73,7 +75,33 @@ def extract_pokemon_data(mon_text):
     if evos_match:
         evos_text = evos_match.group(1)
         evos_list = evos_text.split(",")
-        evos = evos_list[0::3]
+        evos = []
+        for i in range(0, len(evos_list), 3):
+            evos.append(
+                {
+                    "target": evos_list[i],
+                    "method": evos_list[i + 1],
+                    "param": evos_list[i + 2],
+                }
+            )
+
+    tribes = None
+    tribes_match = re.search(r"^Tribes = (.+)", mon_text, re.MULTILINE)
+    if tribes_match:
+        tribes_text = tribes_match.group(1)
+        tribes = tribes_text.split(",")
+
+    height_match = re.search(r"^Height = (.+)", mon_text, re.MULTILINE)
+    height = float(height_match.group(1))
+
+    weight_match = re.search(r"^Weight = (.+)", mon_text, re.MULTILINE)
+    weight = float(weight_match.group(1))
+
+    kind_match = re.search(r"^Kind = (.+)", mon_text, re.MULTILINE)
+    kind = kind_match.group(1)
+
+    pokedex_match = re.search(r"^Pokedex = (.+)", mon_text, re.MULTILINE)
+    pokedex = pokedex_match.group(1)
 
     mon_data = {
         "id": id,
@@ -84,6 +112,11 @@ def extract_pokemon_data(mon_text):
         "level_moves": level_moves,
         "line_moves": line_moves,
         "tutor_moves": tutor_moves,
+        "tribes": tribes,
+        "height": height,
+        "weight": weight,
+        "kind": kind,
+        "pokedex": pokedex,
         "evos": evos,
     }
 
@@ -96,7 +129,9 @@ mon_list = [extract_pokemon_data(mon) for mon in pokemon]
 for mon in mon_list:
     if mon["evos"] != None:
         for evo in mon["evos"]:
-            evo_index = next(i for i, v in enumerate(mon_list) if v["id"] == evo)
+            evo_index = next(
+                i for i, v in enumerate(mon_list) if v["id"] == evo["target"]
+            )
             if mon["level_moves"] != None:
                 mon_list[evo_index]["level_moves"] = (
                     mon_list[evo_index]["level_moves"] or []
@@ -105,18 +140,8 @@ for mon in mon_list:
                 mon_list[evo_index]["line_moves"] = (
                     mon_list[evo_index]["line_moves"] or []
                 ) + mon["line_moves"]
-    mon["moves"] = unique(
-        (mon["level_moves"] or [])
-        + (mon["line_moves"] or [])
-        + (mon["tutor_moves"] or [])
-    )
-
-# remove unnecessary properties
-for mon in mon_list:
-    del mon["level_moves"]
-    del mon["line_moves"]
-    del mon["tutor_moves"]
-    del mon["evos"]
+            if mon_list[evo_index]["tribes"] == None:
+                mon_list[evo_index]["tribes"] = mon["tribes"]
 
 
 mon_data = {mon["id"]: mon for mon in mon_list}
