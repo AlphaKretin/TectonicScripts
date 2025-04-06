@@ -147,4 +147,4 @@ for mon in mon_list:
 mon_data = {mon["id"]: mon for mon in mon_list}
 
 with open("pokemon.json", "w", encoding="utf8") as outfile:
-    outfile.write(json.dumps(mon_data, indent=4))
+    outfile.write(json.dumps(mon_data))
