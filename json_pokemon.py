@@ -90,6 +90,7 @@ def extract_pokemon_data(mon_text):
     if tribes_match:
         tribes_text = tribes_match.group(1)
         tribes = tribes_text.split(",")
+        tribes = [tribe.title() for tribe in tribes]
 
     height_match = re.search(r"^Height = (.+)", mon_text, re.MULTILINE)
     height = float(height_match.group(1))
