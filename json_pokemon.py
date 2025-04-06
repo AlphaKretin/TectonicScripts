@@ -49,6 +49,10 @@ def extract_pokemon_data(mon_text):
         "spdef": stat_nums[5],
     }
 
+    abil_match = re.search(r"^Abilities = (.+)", mon_text, re.MULTILINE)
+    abil_text = abil_match.group(1)
+    abilities = abil_text.split(",")
+
     level_moves = None
     level_moves_match = re.search(r"^Moves = (.+)", mon_text, re.MULTILINE)
     if level_moves_match:
@@ -110,6 +114,7 @@ def extract_pokemon_data(mon_text):
         "type1": type1,
         "type2": type2,
         "stats": stats,
+        "abilities": abilities,
         "level_moves": level_moves,
         "line_moves": line_moves,
         "tutor_moves": tutor_moves,
