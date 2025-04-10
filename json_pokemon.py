@@ -17,18 +17,17 @@ pokemon = doc.split("#-------------------------------")
 pokemon = pokemon[1:]  # first entry is a header, rest fit expected format
 
 
-def unique(seq):
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
-
-
 def extract_pokemon_data(mon_text):
     id_match = re.search(r"\[([A-Zfm\d]+)\]", mon_text, re.MULTILINE)
     id = id_match.group(1)
 
     name_match = re.search(r"^Name = (.+)", mon_text, re.MULTILINE)
     name = name_match.group(1)
+
+    form_name = None
+    form_name_match = re.search(r"^FormName = (.+)", mon_text, re.MULTILINE)
+    if form_name_match:
+        form_name = form_name_match.group(1)
 
     type1_match = re.search(r"^Type1 = (.+)", mon_text, re.MULTILINE)
     type1 = type1_match.group(1).title()
@@ -111,6 +110,7 @@ def extract_pokemon_data(mon_text):
     mon_data = {
         "id": id,
         "name": name,
+        "form_name": form_name,
         "type1": type1,
         "type2": type2,
         "stats": stats,
