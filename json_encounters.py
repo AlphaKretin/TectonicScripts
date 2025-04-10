@@ -36,7 +36,7 @@ def extract_encounter_data(enc_text):
             continue
         weight = int(terms[0])
         mon = terms[1]
-        encounters[current_patch].append((weight, mon))
+        encounters[current_patch].append({"weight": weight, "pokemon": mon})
 
     enc_data = {"id": id, "name": name, "encounters": encounters}
 
