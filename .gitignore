@@ -3,3 +3,4 @@ music/
 *.json
 *.csv
 *.tsv
+__pycache__
