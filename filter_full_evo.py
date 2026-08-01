@@ -1,31 +1,43 @@
-import re
+import json
+import csv
 
-with open("pokemon.txt", "r", encoding="utf8") as infile:
-    doc = infile.read()
+# Load the comprehensive loadedData.json file
+with open("loadedData.json", "r", encoding="utf8") as f:
+    data = json.load(f)
 
-mons = doc.split("#-------------------------------")
-mons = mons[1:]  # first entry is a header, rest fit expected format
+pokemon_data = {}
 
-
-def extract_mon_data(mon_text):
-    name_match = re.search(r"^Name = (.+)", mon_text, re.MULTILINE)
-    name = name_match.group(1)
-
-    id_match = re.search(r"^InternalName = (.+)", mon_text, re.MULTILINE)
-    id = id_match.group(1)
-
-    evo_match = re.search(r"^Evolutions = (.+?),", mon_text, re.MULTILINE)
-    evo = evo_match.group(1) if evo_match else None
-
-    return {"id": id, "name": name, "evo": evo}
+# Extract pokemon data
+for pokemon_key, pokemon in data.get("pokemon", {}).items():
+    # Filter for fully evolved Pokemon only (those with no evolutions)
+    evolutions = pokemon.get("evolutions", [])
+    if not evolutions:  # Only include Pokemon with no evolutions
+        pokemon_data[pokemon_key] = {
+            "id": pokemon.get("key", pokemon_key),
+            "name": pokemon.get("name", pokemon_key)
+        }
 
 
-mon_data = [extract_mon_data(mon) for mon in mons]
-evo_mons = [mon for mon in mon_data if mon["evo"] == None]
+# Data structure to store results
+results = []
 
-lines = [mon["name"] for mon in evo_mons]
+# Process each pokemon
+for pokemon_id, pokemon in pokemon_data.items():
+    results.append({
+        "pokemon_id": pokemon_id,
+        "pokemon_name": pokemon.get("name", pokemon_id),
+    })
+        
 
-out = "\n".join(lines)
+# Export to CSV
+output_file = "evomons.csv"
+with open(output_file, "w", newline="", encoding="utf8") as csvfile:
+    fieldnames = [
+        "pokemon_id",
+        "pokemon_name",
+    ]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(results)
 
-with open("evomons.txt", "w", encoding="utf8") as outfile:
-    outfile.write(out)
+print(f"Exported {len(results)} records to {output_file}")
