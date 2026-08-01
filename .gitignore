@@ -3,4 +3,6 @@ music/
 *.json
 *.csv
 *.tsv
+*.html
 __pycache__
+*.png
