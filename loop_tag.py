@@ -16,3 +16,12 @@ for loop in loops:
     file.tags["LOOPSTART"] = str(loop_start)
     file.tags["LOOPLENGTH"] = str(loop_length)
     file.save()
+    # mutagen normalises VComment keys to lowercase; patch back to uppercase
+    # since LOOPSTART/LOOPLENGTH are the same byte length, no offsets change
+    filepath = MUSIC_DIR + filename
+    with open(filepath, "rb") as fh:
+        data = fh.read()
+    data = data.replace(b"loopstart=", b"LOOPSTART=")
+    data = data.replace(b"looplength=", b"LOOPLENGTH=")
+    with open(filepath, "wb") as fh:
+        fh.write(data)
