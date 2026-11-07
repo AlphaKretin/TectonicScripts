@@ -3,7 +3,7 @@ Compares the power and accuracy of the moves fully evolved Pokemon have
 access to by level up at various level caps.
 
 Steps:
-  1. Filter loadedData.json for fully evolved Pokemon (no evolutions).
+  1. Filter for fully evolved Pokemon (no evolutions).
   2. Split them by whether they learn any level-up move above level 60.
   3. For the "learns above 60" group, check every multiple of 5 from 40 to 70.
      For the "nothing above 60" group, check level 45 only.
@@ -16,35 +16,17 @@ By default only damaging moves are counted, since status moves have no power.
 Pass --include-status to count every move. Moves with 0 accuracy (moves that
 can't miss) are left out of the accuracy average and never count as low
 accuracy.
+
+Prints its tables to stdout.
 """
 
-import argparse
-import json
+from tectonic import is_fully_evolved, level_moves, load_data, parse_args
 
-DATA_FILE = "loadedData.json"
 SPLIT_LEVEL = 60
 YES_LEVELS = list(range(40, 71, 5))
 NO_LEVELS = [45]
 HIGH_POWER = 90
 FULL_ACCURACY = 100
-
-
-def load_data(path):
-    with open(path, encoding="utf8") as f:
-        return json.load(f)
-
-
-def level_moves(mon):
-    """Level-up moves as (level, move_key) pairs, in learn order."""
-    moves = []
-    for entry in mon.get("levelMoves") or []:
-        if isinstance(entry, dict):
-            moves.append((entry.get("level", 0), entry.get("move")))
-        else:
-            level, move = entry
-            moves.append((level, move))
-    # Stable sort keeps the file's order for moves learned at the same level
-    return sorted(moves, key=lambda m: m[0])
 
 
 def last_move_before(mon_moves, level, moves_data, include_status):
@@ -114,22 +96,20 @@ def print_table(title, results):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    args = parse_args(
+        __doc__,
+        lambda p: p.add_argument(
+            "--include-status", action="store_true", help="count status moves too"
+        ),
     )
-    parser.add_argument("data_file", nargs="?", default=DATA_FILE)
-    parser.add_argument(
-        "--include-status", action="store_true", help="count status moves too"
-    )
-    args = parser.parse_args()
 
-    data = load_data(args.data_file)
-    moves_data = data.get("moves", {})
+    data = load_data(args.dev)
+    moves_data = data["moves"]
 
     fully_evolved = [
-        {"key": key, "name": mon.get("name", key), "moves": level_moves(mon)}
-        for key, mon in data.get("pokemon", {}).items()
-        if not mon.get("evolutions")
+        {"key": key, "name": mon["name"], "moves": level_moves(mon)}
+        for key, mon in data["pokemon"].items()
+        if is_fully_evolved(mon)
     ]
 
     learns_late = [

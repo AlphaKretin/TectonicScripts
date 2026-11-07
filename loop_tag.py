@@ -1,3 +1,10 @@
+"""
+Writes LOOPSTART and LOOPLENGTH tags into the tracks in music/ from loops.txt,
+as exported by PyMusicLooper:
+    pymusiclooper export-points --export-to TXT --fmt SAMPLES --path FOLDER
+loop_interactive.py produces the file and runs this script itself.
+"""
+
 import mutagen
 import mutagen.oggvorbis
 

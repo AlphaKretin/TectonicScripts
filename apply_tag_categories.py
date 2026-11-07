@@ -1,20 +1,23 @@
+"""
+Adds each Pokemon's categories from tag_categories.py to its Flags line in the
+PBS pokemon.txt, keeping existing flags, and warns about unknown Pokemon.
+
+Edits pokemon.txt in place.
+"""
+
 import re
-from tagcategories import categories
+
+from tag_categories import categories
+from tectonic import read_pbs, write_pbs
 
 pokemon_categories = {}
 for category, members in categories.items():
     for member in members:
         pokemon_categories.setdefault(member, []).append(category)
 
-with open("pokemon.txt", "r", encoding="utf8") as f:
-    doc = f.read()
+header, entries = read_pbs("pokemon.txt")
 
-separator = "#-------------------------------"
-sections = doc.split(separator)
-header = sections[0]
-entries = sections[1:]
-
-result = [header]
+result = []
 not_found = set(pokemon_categories.keys())
 
 for entry in entries:
@@ -38,7 +41,6 @@ if not_found:
     for p in sorted(not_found):
         print(f"  {p}")
 
-with open("pokemon.txt", "w", encoding="utf8") as f:
-    f.write(separator.join(result))
+write_pbs("pokemon.txt", header, result)
 
 print("Done.")

@@ -1,49 +1,21 @@
-import json
-import csv
+"""
+Lists every fully evolved Pokemon that has exactly two tribes.
 
-# Load the comprehensive loadedData.json file
-with open("loadedData.json", "r", encoding="utf8") as f:
-    data = json.load(f)
+Writes two_tribes.csv.
+"""
 
-pokemon_data = {}
-
-# Extract pokemon data
-for pokemon_key, pokemon in data.get("pokemon", {}).items():
-    # Filter for fully evolved Pokemon only (those with no evolutions)
-    evolutions = pokemon.get("evolutions", [])
-    if not evolutions:  # Only include Pokemon with no evolutions
-        pokemon_data[pokemon_key] = {
-            "id": pokemon.get("key", pokemon_key),
-            "name": pokemon.get("name", pokemon_key),
-            "tribes": pokemon.get("tribes", [])
-        }
+from tectonic import is_fully_evolved, load_data, parse_args, write_table
 
 
-# Data structure to store results
-results = []
-
-# Process each pokemon
-for pokemon_id, pokemon in pokemon_data.items():
-    if len(pokemon["tribes"]) == 2:
-        results.append({
-            "pokemon_id": pokemon_id,
-            "pokemon_name": pokemon.get("name", pokemon_id),
-            "tribe1": pokemon["tribes"][0],
-            "tribe2": pokemon["tribes"][1]
-        })
-        
-
-# Export to CSV
-output_file = "two_tribes.csv"
-with open(output_file, "w", newline="", encoding="utf8") as csvfile:
-    fieldnames = [
-        "pokemon_id",
-        "pokemon_name",
-        "tribe1",
-        "tribe2"
+def main():
+    args = parse_args(__doc__)
+    rows = [
+        (key, mon["name"], *mon["tribes"])
+        for key, mon in load_data(args.dev)["pokemon"].items()
+        if is_fully_evolved(mon) and len(mon.get("tribes") or []) == 2
     ]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    writer.writerows(results)
+    write_table("two_tribes.csv", ("pokemon_id", "pokemon_name", "tribe1", "tribe2"), rows)
 
-print(f"Exported {len(results)} records to {output_file}")
+
+if __name__ == "__main__":
+    main()

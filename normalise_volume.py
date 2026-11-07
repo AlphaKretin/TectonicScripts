@@ -1,3 +1,11 @@
+"""
+Step 2 of volume normalisation: applies each gain recorded in replaygain.txt
+(by export_replaygain.py) to its track in music/ with ffmpeg.
+
+Writes the adjusted tracks to music/normal/; copy_metadata.py then restores
+their tags.
+"""
+
 import ffmpeg
 
 MUSIC_DIR = "music/"

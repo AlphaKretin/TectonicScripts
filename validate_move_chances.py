@@ -1,10 +1,15 @@
+"""
+Checks that each move's percentage in its description in the PBS moves.txt
+matches its EffectChance.
+
+Writes moveerrors.txt and prints the mismatches.
+"""
+
 import re
 
-with open("moves.txt", "r", encoding="utf8") as infile:
-    doc = infile.read()
+from tectonic import read_pbs
 
-moves = doc.split("#-------------------------------")
-moves = moves[1:]  # first entry is a header, rest fit expected format
+_, moves = read_pbs("moves.txt")
 moves = [move for move in moves if not move.startswith("\n#")]  # remove comments
 
 

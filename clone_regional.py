@@ -1,3 +1,11 @@
+"""
+Copies a Pokemon's sprites, icons, follower sprites and cry, shiny versions
+included, to a new species ID in the Tectonic fork, as a starting point for a
+regional form.
+
+Usage: python clone_regional.py ORIGINAL_ID NEW_ID
+"""
+
 import shutil
 import sys
 

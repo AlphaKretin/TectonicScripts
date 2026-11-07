@@ -1,44 +1,21 @@
-import json
-import csv
+"""
+Lists every Pokemon, at any evolution stage, that has exactly one tribe.
 
-# Load the comprehensive loadedData.json file
-with open("loadedData.json", "r", encoding="utf8") as f:
-    data = json.load(f)
+Writes one_tribes.csv.
+"""
 
-pokemon_data = {}
-
-# Extract pokemon data - only first-stage Pokemon
-for pokemon_key, pokemon in data.get("pokemon", {}).items():
-    pokemon_data[pokemon_key] = {
-        "id": pokemon.get("key", pokemon_key),
-        "name": pokemon.get("name", pokemon_key),
-        "tribes": pokemon.get("tribes", [])
-    }
+from tectonic import load_data, parse_args, write_table
 
 
-# Data structure to store results
-results = []
-
-# Process each pokemon
-for pokemon_id, pokemon in pokemon_data.items():
-    if len(pokemon["tribes"]) == 1:
-        results.append({
-            "pokemon_id": pokemon_id,
-            "pokemon_name": pokemon.get("name", pokemon_id),
-            "tribe": pokemon["tribes"][0]
-        })
-        
-
-# Export to CSV
-output_file = "one_tribes.csv"
-with open(output_file, "w", newline="", encoding="utf8") as csvfile:
-    fieldnames = [
-        "pokemon_id",
-        "pokemon_name",
-        "tribe"
+def main():
+    args = parse_args(__doc__)
+    rows = [
+        (key, mon["name"], mon["tribes"][0])
+        for key, mon in load_data(args.dev)["pokemon"].items()
+        if len(mon.get("tribes") or []) == 1
     ]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    writer.writerows(results)
+    write_table("one_tribes.csv", ("pokemon_id", "pokemon_name", "tribe"), rows)
 
-print(f"Exported {len(results)} records to {output_file}")
+
+if __name__ == "__main__":
+    main()

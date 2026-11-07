@@ -1,47 +1,34 @@
-import json
+"""
+For every tribe and type, counts and lists the fully evolved Pokemon with both.
 
-# Load the comprehensive loadedData.json file
-with open("loadedData.json", "r", encoding="utf8") as f:
-    data = json.load(f)
+Writes tribe_type_counts.tsv: tribe, type, count, then one column per Pokemon.
+"""
 
-pokemon_data = {}
+from collections import defaultdict
 
-# Extract pokemon data
-for pokemon_key, pokemon in data.get("pokemon", {}).items():
-    # Filter for fully evolved Pokemon only (those with no evolutions)
-    evolutions = pokemon.get("evolutions", [])
-    flags = pokemon.get("flags", [])
-    if not evolutions:  # Only include Pokemon with no evolutions
-        pokemon_data[pokemon_key] = {
-            "id": pokemon.get("key", pokemon_key),
-            "name": pokemon.get("name", pokemon_key),
-            "type1": pokemon.get("type1", ""),
-            "type2": pokemon.get("type2", ""),
-            "tribes": pokemon.get("tribes", [])
-        }
+from tectonic import is_fully_evolved, load_data, mon_types, parse_args, write_table
 
 
-# Data structure to store results
-results = {}
+def main():
+    args = parse_args(__doc__)
 
-# Process each pokemon
-for pokemon_id, pokemon in pokemon_data.items():
-    for tribe in pokemon["tribes"]:
-        if tribe not in results:
-            results[tribe] = {}
-        for type in [pokemon["type1"], pokemon["type2"]]:
-            if type:
-                if type not in results[tribe]:
-                    results[tribe][type] = []    
-                results[tribe][type].append(pokemon["name"])
-        
+    # tribe -> type -> names
+    members = defaultdict(lambda: defaultdict(list))
+    for mon in load_data(args.dev)["pokemon"].values():
+        if is_fully_evolved(mon):
+            for tribe in mon.get("tribes") or []:
+                for mon_type in mon_types(mon):
+                    members[tribe][mon_type].append(mon["name"])
 
-# Export to TSV
-output_file = "tribe_type_counts.tsv"
-with open(output_file, "w", encoding="utf8") as tsvfile:
-    # Write header
-    tsvfile.write("tribe\ttype\tcount\t" + "\t".join([f"pokemon_{i+1}" for i in range(max(len(ids) for types in results.values() for ids in types.values()))]) + "\n")
+    rows = [
+        (tribe.title(), mon_type.title(), len(names), *names)
+        for tribe, types in members.items()
+        for mon_type, names in types.items()
+    ]
+    widest = max(len(row) for row in rows) - 3
+    header = ("tribe", "type", "count", *(f"pokemon_{i + 1}" for i in range(widest)))
+    write_table("tribe_type_counts.tsv", header, rows)
 
-    for tribe, types in results.items():
-        for type, pokemon_ids in types.items():
-            tsvfile.write(f"{tribe.title()}\t{type.title()}\t{len(pokemon_ids)}\t" + "\t".join(pokemon_ids) + "\n")
+
+if __name__ == "__main__":
+    main()

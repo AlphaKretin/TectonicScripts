@@ -1,7 +1,16 @@
+"""
+Step 1 of volume normalisation, which bakes ReplayGain adjustments into the
+music so they apply in-game. First tag the tracks in music/ with ReplayGain
+(e.g. in foobar2000); this script records each track's gain and removes the
+ReplayGain tags, so the adjustment isn't applied twice once it's baked in.
+Then run normalise_volume.py and copy_metadata.py.
+
+Writes replaygain.txt (filename,gain per line) and edits the tracks' tags.
+"""
+
 import os
 
 import mutagen
-import mutagen.ogg
 import mutagen.oggvorbis
 
 MUSIC_DIR = "music/"

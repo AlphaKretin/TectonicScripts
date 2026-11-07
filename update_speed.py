@@ -1,15 +1,22 @@
+"""
+Sets new base Speed values in the PBS pokemon.txt from a CSV.
+
+Usage: python update_speed.py [changes.csv]   (default speed_changes.csv)
+
+Each CSV row is: pokemon ID, old speed, (ignored), new speed. Rows without
+numeric speeds are skipped. Warns about unknown Pokemon and about Pokemon
+whose current speed isn't the expected old one (they're updated anyway).
+
+Edits pokemon.txt in place.
+"""
+
 import csv
 import re
 import sys
 
-separator = "#-------------------------------"
+from tectonic import read_pbs, write_pbs
 
-with open("pokemon.txt", "r", encoding="utf8") as f:
-    doc = f.read()
-
-sections = doc.split(separator)
-header = sections[0]
-entries = sections[1:]
+header, entries = read_pbs("pokemon.txt")
 
 with open(sys.argv[1] if len(sys.argv) > 1 else "speed_changes.csv", "r", encoding="utf8", newline="") as f:
     reader = csv.reader(f)
@@ -22,7 +29,7 @@ with open(sys.argv[1] if len(sys.argv) > 1 else "speed_changes.csv", "r", encodi
             continue
         new_speeds[pokemon_id] = (int(old_speed), int(new_speed))
 
-result = [header]
+result = []
 not_found = set(new_speeds.keys())
 mismatches = []
 
@@ -54,7 +61,6 @@ if mismatches:
     for pokemon_id, actual, expected in mismatches:
         print(f"  {pokemon_id}: expected old speed {expected}, found {actual}")
 
-with open("pokemon.txt", "w", encoding="utf8") as f:
-    f.write(separator.join(result))
+write_pbs("pokemon.txt", header, result)
 
 print("Done.")

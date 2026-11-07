@@ -1,3 +1,13 @@
+"""
+Picks loop points for Ogg tracks with PyMusicLooper's interactive mode, one
+track at a time, then runs loop_tag.py to write them into the files.
+
+Usage: python loop_interactive.py FILE_OR_DIR... [--approx START END]
+Bare filenames are looked up in music/.
+
+Writes loops.txt (replacing any existing one) and the tracks' loop tags.
+"""
+
 import argparse
 import os
 import subprocess

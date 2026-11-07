@@ -9,17 +9,19 @@ Move-learning methods:
 
 In this dataset TMs and tutoring teach the same move pool (lineMoves /
 tutorMoves), so there's no separate TM-only category to track.
+
+Writes CSVs and plots to type_analysis_output/.
 """
 
 import csv
-import json
 import os
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-DATA_FILE = "loadedData.json"
+from tectonic import load_data, mon_types, parse_args
+
 OUTPUT_DIR = "type_analysis_output"
 MODES = ("full", "natural", "full_no_omni")
 
@@ -27,11 +29,6 @@ MODES = ("full", "natural", "full_no_omni")
 # Pokemon that aren't of its own type can still learn it (Normal moves are
 # expected to be near-universal and are handled separately, not flagged here).
 OMNIPRESENT_THRESHOLD = 50
-
-
-def load_data():
-    with open(DATA_FILE, encoding="utf8") as f:
-        return json.load(f)
 
 
 def get_real_types(data):
@@ -60,12 +57,7 @@ def get_damaging_move_types(data, real_types):
 def build_pokemon_records(data, move_types):
     records = []
     for key, mon in data["pokemon"].items():
-        types = set()
-        if mon.get("type1"):
-            types.add(mon["type1"])
-        if mon.get("type2"):
-            types.add(mon["type2"])
-
+        types = set(mon_types(mon))
         level_moves = {m["move"] for m in mon.get("levelMoves") or []}
         tutor_moves = set(mon.get("lineMoves") or []) | set(mon.get("tutorMoves") or [])
         form_moves = {m for m in (mon.get("formSpecificMoves") or []) if m}
@@ -360,9 +352,10 @@ def write_full_coverage(results, mode):
 # ---------------------------------------------------------------------------
 
 def main():
+    args = parse_args(__doc__)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    data = load_data()
+    data = load_data(args.dev)
     real_types = get_real_types(data)
     move_types = get_damaging_move_types(data, real_types)
     records = build_pokemon_records(data, move_types)

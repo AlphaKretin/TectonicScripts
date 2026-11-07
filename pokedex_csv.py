@@ -1,52 +1,42 @@
-import json
-import csv
-import sys
+"""
+Dumps the whole Pokedex, one row per Pokemon in dex order, with types, tribes,
+base stats and flags.
 
-sys.stdout.reconfigure(newline="")
+Writes pokedex.tsv.
+"""
 
-with open("loadedData-dev.json", "r", encoding="utf8") as f:
-    data = json.load(f)
+from tectonic import is_fully_evolved, load_data, parse_args, write_table
 
-rows = []
-for key, p in data.get("pokemon", {}).items():
-    flags = p.get("flags", [])
-    tribes = p.get("tribes", [])
-    is_fully_evolved = len(p.get("evolutions", [])) == 0
-
-    rows.append({
-        "key": p.get("key", key),
-        "dex_num": p.get("dexNum", ""),
-        "name": p.get("name", key),
-        "type1": p.get("type1", ""),
-        "type2": p.get("type2", ""),
-        "tribe1": tribes[0] if len(tribes) > 0 else "",
-        "tribe2": tribes[1] if len(tribes) > 1 else "",
-        "tribe3": tribes[2] if len(tribes) > 2 else "",
-        "num_tribes": len(tribes),
-        "hp": p.get("hp", ""),
-        "attack": p.get("attack", ""),
-        "defense": p.get("defense", ""),
-        "speed": p.get("speed", ""),
-        "sp_attack": p.get("spAttack", ""),
-        "sp_defense": p.get("spDefense", ""),
-        "bst": p.get("bst", ""),
-        "fully_evolved": is_fully_evolved,
-        "legendary": "Legendary" in flags,
-        "ultra_beast": "UltraBeast" in flags,
-        "flags": "/".join(flags),
-    })
-
-rows.sort(key=lambda r: (r["dex_num"] if isinstance(r["dex_num"], int) else 9999, r["key"]))
-
-fieldnames = [
+HEADER = (
     "key", "dex_num", "name",
     "type1", "type2",
     "tribe1", "tribe2", "tribe3", "num_tribes",
     "hp", "attack", "defense", "speed", "sp_attack", "sp_defense", "bst",
     "fully_evolved", "legendary", "ultra_beast",
     "flags",
-]
+)
 
-writer = csv.DictWriter(sys.stdout, fieldnames=fieldnames, delimiter="\t")
-writer.writeheader()
-writer.writerows(rows)
+
+def main():
+    args = parse_args(__doc__)
+
+    rows = []
+    for key, mon in load_data(args.dev)["pokemon"].items():
+        flags = mon.get("flags") or []
+        tribes = (mon.get("tribes") or []) + ["", "", ""]
+        rows.append((
+            key, mon.get("dexNum", ""), mon["name"],
+            mon.get("type1", ""), mon.get("type2", ""),
+            *tribes[:3], len(mon.get("tribes") or []),
+            mon["hp"], mon["attack"], mon["defense"], mon["speed"],
+            mon["spAttack"], mon["spDefense"], mon["bst"],
+            is_fully_evolved(mon), "Legendary" in flags, "UltraBeast" in flags,
+            "/".join(flags),
+        ))
+
+    rows.sort(key=lambda r: (r[1] if isinstance(r[1], int) else 9999, r[0]))
+    write_table("pokedex.tsv", HEADER, rows)
+
+
+if __name__ == "__main__":
+    main()

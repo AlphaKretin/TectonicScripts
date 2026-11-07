@@ -1,3 +1,10 @@
+"""
+Adds the FollowSurf flag to the Pokemon in SURFING_FOLLOWERS, and NoFollowSurf
+to those in SURFING_FOLLOWERS_EXCEPTIONS, in the PBS pokemon.txt.
+
+Edits pokemon.txt in place.
+"""
+
 import re
 
 SURFING_FOLLOWERS = [
