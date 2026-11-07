@@ -14,7 +14,7 @@ for pokemon_key, pokemon in data.get("pokemon", {}).items():
     if not evolutions:  # Only include Pokemon with no evolutions
         pokemon_data[pokemon_key] = {
             "id": pokemon.get("key", pokemon_key),
-            "name": pokemon.get("name", pokemon_key)
+            "name": pokemon.get("name", pokemon_key),
         }
 
 
@@ -23,11 +23,13 @@ results = []
 
 # Process each pokemon
 for pokemon_id, pokemon in pokemon_data.items():
-    results.append({
-        "pokemon_id": pokemon_id,
-        "pokemon_name": pokemon.get("name", pokemon_id),
-    })
-        
+    results.append(
+        {
+            "pokemon_id": pokemon_id,
+            "pokemon_name": pokemon.get("name", pokemon_id),
+        }
+    )
+
 
 # Export to CSV
 output_file = "evomons.csv"
